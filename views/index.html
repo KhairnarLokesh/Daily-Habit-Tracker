@@ -66,6 +66,12 @@
                     <div class="input-group">
                         <input type="text" id="habitNameInput" placeholder="What habit do you want to build?" required
                             autocomplete="off">
+                        <select id="habitCategoryInput" class="category-select">
+                            <option value="health">🏃‍♂️ Health</option>
+                            <option value="work">💻 Work</option>
+                            <option value="personal">🧘‍♂️ Personal</option>
+                            <option value="hobby">🎨 Hobby</option>
+                        </select>
                         <button type="submit" class="btn-primary" id="addBtn">
                             <i class="fas fa-plus"></i> Add Habit
                         </button>
@@ -77,6 +83,14 @@
                 <div class="section-header">
                     <h2>Your Habits</h2>
                     <span id="dateDisplay" class="date-display"></span>
+                </div>
+
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="health">Health</button>
+                    <button class="filter-btn" data-filter="work">Work</button>
+                    <button class="filter-btn" data-filter="personal">Personal</button>
+                    <button class="filter-btn" data-filter="hobby">Hobby</button>
                 </div>
 
                 <div id="habitsList" class="habits-grid">

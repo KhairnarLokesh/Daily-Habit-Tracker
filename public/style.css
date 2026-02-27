@@ -395,6 +395,22 @@ input[type="text"]:focus {
     box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
 }
 
+.category-select {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.category-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
 /* Buttons */
 button {
     cursor: pointer;
@@ -475,6 +491,36 @@ button {
     font-size: 0.9rem;
 }
 
+.filter-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.filter-btn:hover {
+    background-color: var(--surface-hover);
+    color: var(--text-main);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
 /* Habits Grid */
 .habits-grid {
     display: flex;
@@ -527,6 +573,23 @@ button {
     font-weight: 600;
     margin-bottom: 0.2rem;
 }
+
+.habit-category-tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.tag-health { background-color: #238636; }
+.tag-work { background-color: #0969da; }
+.tag-personal { background-color: #8250df; }
+.tag-hobby { background-color: #bf3989; }
 
 .habit-streak {
     display: flex;

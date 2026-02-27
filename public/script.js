@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let habits = [];
     let userStats = { xp: 0, level: 1 };
     let userId = '';
+    let currentFilter = 'all';
 
     // Initialize User ID
     function initUser() {
@@ -70,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const habitName = input.value.trim();
+        const categoryInput = document.getElementById('habitCategoryInput');
+        const category = categoryInput ? categoryInput.value : 'personal';
 
         if (!habitName) return;
 
@@ -84,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'x-user-id': userId
                 },
-                body: JSON.stringify({ habitName })
+                body: JSON.stringify({ habitName, category })
             });
 
             const data = await res.json();
@@ -103,6 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
             addBtn.disabled = false;
             addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Habit';
         }
+    });
+
+    // Filter Buttons
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.getAttribute('data-filter');
+            renderHabits();
+        });
     });
 
     // Fetch Habits helper
@@ -155,13 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderHabits() {
         habitsList.innerHTML = '';
 
-        if (habits.length === 0) {
+        const filteredHabits = currentFilter === 'all' 
+            ? habits 
+            : habits.filter(h => h.category === currentFilter);
+
+        if (filteredHabits.length === 0) {
             emptyState.classList.remove('hidden');
         } else {
             emptyState.classList.add('hidden');
 
-            habits.forEach(habit => {
+            filteredHabits.forEach(habit => {
                 const isCompletedToday = habit.records && habit.records[todayStr] === true;
+                const categoryLabel = habit.category ? habit.category.charAt(0).toUpperCase() + habit.category.slice(1) : 'Personal';
 
                 const card = document.createElement('div');
                 card.className = `habit-card ${isCompletedToday ? 'completed-today' : ''}`;
@@ -171,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <i class="fas fa-check"></i>
                     </button>
                     <div class="habit-info">
+                        <span class="habit-category-tag tag-${habit.category || 'personal'}">${categoryLabel}</span>
                         <div class="habit-name">${escapeHTML(habit.habitName)}</div>
                         <div class="habit-streak">
                             <i class="fas fa-fire streak-icon"></i>

@@ -14,7 +14,7 @@ exports.getAllHabits = async (req, res) => {
 
         let habits = await readData();
         habits = habits.filter(h => h.userId === userId);
-        
+
         // Sort by createdAt descending
         habits.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         res.status(200).json(habits);
@@ -32,14 +32,14 @@ exports.createHabit = async (req, res) => {
             return res.status(400).json({ message: 'User ID header is missing' });
         }
 
-        const { habitName } = req.body;
+        const { habitName, category } = req.body;
         if (!habitName) {
             return res.status(400).json({ message: 'Habit name is required' });
         }
 
         const habits = await readData();
         const habitExists = habits.find(h => h.habitName === habitName && h.userId === userId);
-        
+
         if (habitExists) {
             return res.status(400).json({ message: 'Habit already exists' });
         }
@@ -48,6 +48,7 @@ exports.createHabit = async (req, res) => {
             _id: crypto.randomUUID(),
             userId: userId,
             habitName: habitName,
+            category: category || 'personal',
             createdAt: new Date().toISOString(),
             records: {},
             streakCount: 0
@@ -73,7 +74,7 @@ exports.deleteHabit = async (req, res) => {
 
         const habits = await readData();
         const habitIndex = habits.findIndex(h => h._id === req.params.id && h.userId === userId);
-        
+
         if (habitIndex === -1) {
             return res.status(404).json({ message: 'Habit not found or unauthorized' });
         }
@@ -105,7 +106,7 @@ exports.markHabitCompleted = async (req, res) => {
 
         const habits = await readData();
         const habit = habits.find(h => h._id === req.params.id && h.userId === userId);
-        
+
         if (!habit) {
             return res.status(404).json({ message: 'Habit not found or unauthorized' });
         }
@@ -160,7 +161,7 @@ exports.unmarkHabit = async (req, res) => {
 
         const habits = await readData();
         const habit = habits.find(h => h._id === req.params.id && h.userId === userId);
-        
+
         if (!habit) {
             return res.status(404).json({ message: 'Habit not found or unauthorized' });
         }
@@ -179,7 +180,7 @@ exports.unmarkHabit = async (req, res) => {
         // Streak logic revert:
         const yesterdayStr = getYesterdayString(todayStr);
         let lostBonusXP = 0;
-        
+
         // Revert bonus logic if we had hit exactly the milestone yesterday
         if (habit.records[yesterdayStr]) {
             if (habit.streakCount === 7) lostBonusXP = 50;
