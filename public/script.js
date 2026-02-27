@@ -153,14 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!levelDisplay || !xpDisplay || !xpFill) return;
 
         levelDisplay.textContent = `Level ${userStats.level}`;
-        
+
         // Calculate progress to next level
         const currentLevelXpStart = (userStats.level - 1) * 100;
         const nextLevelXpStart = userStats.level * 100;
         const xpInCurrentLevel = userStats.xp - currentLevelXpStart;
-        
+
         xpDisplay.textContent = `${xpInCurrentLevel} / 100 XP`;
-        
+
         const percentage = Math.min(100, Math.max(0, (xpInCurrentLevel / 100) * 100));
         xpFill.style.width = `${percentage}%`;
     }
@@ -169,8 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderHabits() {
         habitsList.innerHTML = '';
 
-        const filteredHabits = currentFilter === 'all' 
-            ? habits 
+        const filteredHabits = currentFilter === 'all'
+            ? habits
             : habits.filter(h => h.category === currentFilter);
 
         if (filteredHabits.length === 0) {
@@ -182,25 +182,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isCompletedToday = habit.records && habit.records[todayStr] === true;
                 const categoryLabel = habit.category ? habit.category.charAt(0).toUpperCase() + habit.category.slice(1) : 'Personal';
 
+                // Calculate last 7 days for the heatmap
+                let heatmapHTML = '';
+                const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+                const today = new Date();
+
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date(today);
+                    d.setDate(d.getDate() - i);
+                    const dStr = d.toISOString().split('T')[0];
+                    const isDone = habit.records && habit.records[dStr] === true;
+                    const dayName = days[d.getDay()];
+                    const isToday = i === 0;
+
+                    heatmapHTML += `
+                        <div class="history-day ${isDone ? 'active' : ''} ${isToday ? 'today' : ''}" title="${dStr}">
+                            ${dayName}
+                        </div>
+                    `;
+                }
+
                 const card = document.createElement('div');
                 card.className = `habit-card ${isCompletedToday ? 'completed-today' : ''}`;
 
                 card.innerHTML = `
-                    <button class="btn-check ${isCompletedToday ? 'completed' : ''}" data-id="${habit._id}" aria-label="Toggle completion">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <div class="habit-info">
-                        <span class="habit-category-tag tag-${habit.category || 'personal'}">${categoryLabel}</span>
-                        <div class="habit-name">${escapeHTML(habit.habitName)}</div>
-                        <div class="habit-streak">
-                            <i class="fas fa-fire streak-icon"></i>
-                            <span class="streak-count">${habit.streakCount} day streak</span>
+                    <div class="habit-main">
+                        <button class="btn-check ${isCompletedToday ? 'completed' : ''}" data-id="${habit._id}" aria-label="Toggle completion">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <div class="habit-info">
+                            <span class="habit-category-tag tag-${habit.category || 'personal'}">${categoryLabel}</span>
+                            <div class="habit-name">${escapeHTML(habit.habitName)}</div>
+                            <div class="habit-streak">
+                                <i class="fas fa-fire streak-icon"></i>
+                                <span class="streak-count">${habit.streakCount} day streak</span>
+                            </div>
+                        </div>
+                        <div class="habit-actions">
+                            <button class="btn-icon delete-btn" data-id="${habit._id}" title="Delete Habit">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="habit-actions">
-                        <button class="btn-icon delete-btn" data-id="${habit._id}" title="Delete Habit">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    <div class="habit-history">
+                        <div class="history-label">Last 7 Days</div>
+                        <div class="history-days">
+                            ${heatmapHTML}
+                        </div>
                     </div>
                 `;
 
@@ -339,5 +367,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('SW registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('SW registration failed:', error);
+                });
+        });
     }
 });
